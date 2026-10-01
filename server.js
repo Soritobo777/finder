@@ -7,7 +7,6 @@ const PORT = process.env.PORT || 3000;
 
 if (!process.env.OPENAI_API_KEY) {
     console.error("❌ ERROR: Falta OPENAI_API_KEY");
-    console.error("Configura la API key en las variables de entorno.");
     process.exit(1);
 }
 
@@ -17,10 +16,8 @@ const client = new OpenAI({
 
 app.use(express.json());
 
-// Servir la aplicación web
 app.use(express.static(__dirname));
 
-// API de FINDER
 app.post("/api/finder", async (req, res) => {
     try {
         const goal = req.body?.goal;
@@ -36,7 +33,7 @@ app.post("/api/finder", async (req, res) => {
         console.log(goal);
 
         const response = await client.responses.create({
-            model: "gpt-5.6-luna",
+            model: "gpt-6-luna",
 
             instructions: `
 Eres FINDER, un sistema inteligente que recomienda herramientas de inteligencia artificial.
@@ -110,7 +107,6 @@ Responde en español.
     }
 });
 
-// Arrancar servidor
 app.listen(PORT, "0.0.0.0", () => {
     console.log("");
     console.log("🚀 ===============================");
