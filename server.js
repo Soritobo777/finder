@@ -2,44 +2,39 @@ const express = require("express");
 const OpenAI = require("openai");
 
 const app = express();
-const PORT = 3000;
 
-// Comprobar que existe la API key
+const PORT = process.env.PORT || 3000;
+
 if (!process.env.OPENAI_API_KEY) {
-    console.error("❌ Falta OPENAI_API_KEY");
-    console.error("Configura la API key antes de iniciar FINDER.");
+    console.error("❌ ERROR: Falta OPENAI_API_KEY");
+    console.error("Configura la API key en las variables de entorno.");
     process.exit(1);
 }
 
-// Conectar con OpenAI
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
-// Permitir recibir JSON
 app.use(express.json());
 
-// Servir nuestro index.html
+// Servir la aplicación web
 app.use(express.static(__dirname));
 
-// Endpoint de FINDER
+// API de FINDER
 app.post("/api/finder", async (req, res) => {
-
     try {
-
         const goal = req.body?.goal;
 
-        // Comprobar que el usuario escribió algo
         if (!goal || typeof goal !== "string" || !goal.trim()) {
             return res.status(400).json({
                 error: "No se recibió ningún objetivo."
             });
         }
 
-        console.log("🔎 Objetivo recibido:");
+        console.log("");
+        console.log("🔎 NUEVO OBJETIVO:");
         console.log(goal);
 
-        // Preguntamos al cerebro de FINDER
         const response = await client.responses.create({
             model: "gpt-5.6-luna",
 
@@ -57,9 +52,7 @@ Debes:
 5. Explicar brevemente por qué cada herramienta sirve.
 6. Ordenar las tareas de principio a fin.
 
-No inventes herramientas desconocidas.
-
-Herramientas que FINDER conoce actualmente:
+FINDER conoce actualmente estas herramientas:
 
 - ChatGPT: texto, análisis, ideas, escritura, estudio y programación.
 - Claude: escritura, análisis y programación.
@@ -71,22 +64,44 @@ Herramientas que FINDER conoce actualmente:
 - ElevenLabs: generación de voz.
 - GitHub Copilot: programación.
 
-Devuelve una respuesta clara y estructurada.
+No inventes herramientas desconocidas.
+
+Cuando sea posible, estructura el FLOW así:
+
+FLOW DE FINDER
+
+Paso 1:
+Tarea:
+IA recomendada:
+Por qué:
+
+Paso 2:
+Tarea:
+IA recomendada:
+Por qué:
+
+Paso 3:
+Tarea:
+IA recomendada:
+Por qué:
+
+Al final explica brevemente cómo conectar los pasos para conseguir el objetivo del usuario.
+
+Responde en español.
 `,
 
             input: goal
         });
 
-        console.log("✅ Respuesta recibida de la IA");
+        console.log("✅ RESPUESTA RECIBIDA");
 
-        // Enviar respuesta al navegador
         res.json({
             result: response.output_text
         });
 
     } catch (error) {
-
-        console.error("❌ ERROR:");
+        console.error("");
+        console.error("❌ ERROR DE FINDER:");
         console.error(error);
 
         res.status(500).json({
@@ -96,13 +111,12 @@ Devuelve una respuesta clara y estructurada.
 });
 
 // Arrancar servidor
-app.listen(PORT, () => {
-
+app.listen(PORT, "0.0.0.0", () => {
     console.log("");
     console.log("🚀 ===============================");
     console.log("🚀 FINDER ESTÁ FUNCIONANDO");
     console.log("🚀 ===============================");
     console.log("");
-    console.log(`🌐 http://localhost:${PORT}`);
+    console.log(`🌐 Puerto: ${PORT}`);
     console.log("");
 });
